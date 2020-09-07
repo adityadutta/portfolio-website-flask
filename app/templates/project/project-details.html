@@ -36,7 +36,9 @@
                     {% else %}
                     <img src="{{ url_for('static', filename='img/work-1.jpg') }}" alt="" class="img-fluid">
                     {% endif %}
+                    {% if project['video']%}
                     <div class="item-video" data-merge="2"><a class="owl-video" href="{{ project['video'] }}"></a></div>
+                    {% endif %}
                 </div>
 
                 <div class="portfolio-info">
