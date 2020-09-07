@@ -1,15 +1,62 @@
 {% extends 'base.html' %}
 
-{% block header %}
-  <h1>{% block title %}Projects{% endblock %}</h1>
-  {% if g.user %}
-    <a class="action" href="{{ url_for('project.create') }}">New</a>
-  {% endif %}
-{% endblock %}
-
+<!-- ======= Portfolio Section ======= -->
 {% block content %}
-  {% for project in projects %}
-    <article class="post">
+<section id="work" class="portfolio-mf sect-pt4 route" >
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="title-box text-center">
+                    <h3 class="title-a">
+                        Portfolio
+                    </h3>
+                    <p class="subtitle-a">
+                        Projects made with love and effort.
+                    </p>
+                    <div class="line-mf"></div>
+                </div>
+            </div>
+        </div>
+
+        {% if g.user %}
+        <a class="action" href="{{ url_for('project.create') }}">New</a>
+        {% endif %}
+        <div class="row">
+        {% for project in projects %}
+            <div class="col-md-4">
+                <div class="work-box">
+                    <a href="{{ url_for('static', filename='img/') }}{{ project['photo'] }}" data-gall="portfolioGallery"
+                        class="venobox">
+                        <div class="work-img">
+                            {% if project['photo']%}
+                            <img src="{{ url_for('static', filename='img/') }}{{ project['photo'] }}" alt="" class="img-fluid">
+                            {% else %}
+                            <img src="{{ url_for('static', filename='img/work-1.jpg') }}" alt="" class="img-fluid">
+                            {% endif %}
+                        </div>
+                    </a>
+                    <div class="work-content">
+                        <div class="row">
+                            <div class="col-sm-8">
+                                <h2 class="w-title">{{ project['title'] }}</h2>
+                                {% if g.user['id'] == project['author_id'] %}
+                                <a class="action" href="{{ url_for('project.update', id=project['id']) }}">Edit</a>
+                                {% endif %}
+                                <div class="w-more">
+                                    <span class="w-ctegory">{{ project['category'] }}</span> / <span
+                                        class="w-date">{{ project['date_started'].strftime('%d %b, %Y') }}</span>
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <div class="w-like">
+                                    <a href="{{ url_for('project.project_detail', id=project['id']) }}"> <span class="ion-ios-plus-outline"></span></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- <article class="post">
       <header>
         <div>
           <h1>{{ project['title'] }}</h1>
@@ -21,9 +68,13 @@
       </header>
       <p class="body">{{ project['summary'] }}</p>
       <p class="action"><a href="{{project['link'] }}" target="_blank">Go To {{project['title']}}</a></p>
-    </article>
-    {% if not loop.last %}
-      <hr>
-    {% endif %}
-  {% endfor %}
+    </article> -->
+            <!-- {% if not loop.last %}
+            <hr>
+            {% endif %} -->
+            {% endfor %}
+
+        </div>
+    </div>
+</section><!-- End Portfolio Section -->
 {% endblock %}

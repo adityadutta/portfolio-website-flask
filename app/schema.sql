@@ -13,9 +13,11 @@ CREATE TABLE project (
   created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   title TEXT NOT NULL,
   summary TEXT NOT NULL,
+  category TEXT,
+  languages TEXT,
   link TEXT,
   date_started DATE,
   video TEXT,
-  photos TEXT,
+  photo TEXT,
   FOREIGN KEY (author_id) REFERENCES user (id)
 );

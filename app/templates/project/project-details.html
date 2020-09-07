@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="intro intro-single route bg-image"
+    style="background-image: url({{ url_for('static', filename='img/overlay-bg.jpg') }})">
+    <div class="overlay-mf"></div>
+    <div class="intro-content display-table">
+        <div class="table-cell">
+            <div class="container">
+                <h2 class="intro-title mb-4">{{ project['title'] }}</h2>
+                <ol class="breadcrumb d-flex justify-content-center">
+                    <li class="breadcrumb-item">
+                        <a href="{{ url_for('index') }}">Home</a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a href="{{ url_for('project.index') }}">Projects</a>
+                    </li>
+                    <li class="breadcrumb-item active">{{ project['title'] }}</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<main id="main">
+
+    <!-- ======= Portfolio Details Section ======= -->
+    <section class="portfolio-details">
+        <div class="container">
+
+            <div class="portfolio-details-container">
+
+                <div class="owl-carousel portfolio-details-carousel">
+                    {% if project['photo']%}
+                    <img src="{{ url_for('static', filename='img/') }}{{ project['photo'] }}" alt="" class="img-fluid">
+                    {% else %}
+                    <img src="{{ url_for('static', filename='img/work-1.jpg') }}" alt="" class="img-fluid">
+                    {% endif %}
+                    <div class="item-video" data-merge="2"><a class="owl-video" href="{{ project['video'] }}"></a></div>
+                </div>
+
+                <div class="portfolio-info">
+                    <h3>Project information</h3>
+                    <ul>
+                        <li><strong>Category</strong>: {{ project['category'] }}</li>
+                        <li><strong>Languages</strong>: {{ project['languages'] }}</li>
+                        <li><strong>Project date</strong>: {{ project['date_started'].strftime('%d %B ,%Y') }}</li>
+                        <li><strong>Project URL</strong>: <a href="{{project['link'] }}">{{project['link'] }}</a></li>
+                    </ul>
+                </div>
+
+            </div>
+
+            <div class="portfolio-description">
+                <h2>Project Summary</h2>
+                <p>
+                    {{project['summary'] }}
+                </p>
+            </div>
+        </div>
+    </section><!-- End Portfolio Details Section -->
+
+</main><!-- End #main -->
+
+{% endblock %}

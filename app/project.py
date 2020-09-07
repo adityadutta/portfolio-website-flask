@@ -1,7 +1,11 @@
+import os
+
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, url_for
 )
+
 from werkzeug.exceptions import abort
+from werkzeug.utils import secure_filename
 
 from app.auth import login_required
 from app.db import get_db
@@ -9,15 +13,22 @@ from app.db import get_db
 
 bp = Blueprint('project', __name__, url_prefix='/project')
 
+UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'static\\img')
+ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
+
 @bp.route('/')
 def index():
     db = get_db()
     projects = db.execute(
-        'SELECT p.id, title, link, date_started, author_id, username, summary'
+        'SELECT p.id, title, link, date_started, author_id, username, summary, photo, category'
         ' FROM project p JOIN user u ON p.author_id = u.id'
         ' ORDER BY date_started DESC'
     ).fetchall()
     return render_template('project/index.html', projects=projects)
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @bp.route('/create', methods=('GET', 'POST'))
 @login_required
@@ -26,8 +37,26 @@ def create():
         title = request.form['title']
         summary = request.form['summary']
         date_started = request.form['date_started']
+        category = request.form['category']
+        languages = request.form['languages']
         link = request.form['link']
+        video = request.form['video']
         error = None
+
+        # check if the post request has the file part
+        if 'file' not in request.files:
+            flash('No file part')
+            return redirect(request.url)
+        file = request.files['file']
+        # if user does not select file, browser also
+        # submit an empty part without filename
+        if file.filename == '':
+            flash('No selected file')
+            return redirect(request.url)
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(UPLOAD_FOLDER, filename))
+            photo = filename
 
         if not title:
             error = 'Title is required.'
@@ -37,9 +66,9 @@ def create():
         else:
             db = get_db()
             db.execute(
-                'INSERT INTO project (title, summary, date_started, link, author_id)'
-                ' VALUES (?, ?, ?, ?, ?)',
-                (title, summary, date_started, link, g.user['id'])
+                'INSERT INTO project (title, summary, date_started, link, photo, category, languages, video, author_id)'
+                ' VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                (title, summary, date_started, link, photo, category, languages, video, g.user['id'])
             )
             db.commit()
             return redirect(url_for('project.index'))
@@ -48,7 +77,7 @@ def create():
 
 def get_project(id, check_author=True):
     project = get_db().execute(
-        'SELECT p.id, title, summary, date_started, link, author_id, username'
+        'SELECT p.id, title, summary, date_started, link, photo, category, languages, video, author_id, username'
         ' FROM project p JOIN user u ON p.author_id = u.id'
         ' WHERE p.id = ?',
         (id,)
@@ -94,8 +123,13 @@ def update(id):
 @bp.route('/<int:id>/delete', methods=('POST',))
 @login_required
 def delete(id):
-    get_project(id)
+    project = get_project(id)
     db = get_db()
     db.execute('DELETE FROM project WHERE id = ?', (id,))
     db.commit()
     return redirect(url_for('project.index'))
+
+@bp.route('/<int:id>', methods=('GET', 'POST'))
+def project_detail(id):
+    project = get_project(id)
+    return render_template('project/project-details.html', project=project)
