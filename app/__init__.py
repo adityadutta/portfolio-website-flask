@@ -65,7 +65,7 @@ def create_app(test_config=None):
         projects = db.execute(
             'SELECT p.id, title, link, date_started, author_id, username, summary, photo, category'
             ' FROM project p JOIN user u ON p.author_id = u.id'
-            ' ORDER BY date_started DESC'
+            ' ORDER BY date_started DESC LIMIT 6'
         ).fetchall()
         return render_template('index.html', projects=projects)
     
