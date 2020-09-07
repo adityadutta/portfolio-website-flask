@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="intro intro-single route bg-image"
+    style="background-image: url({{ url_for('static', filename='img/overlay-bg.jpg') }})">
+    <div class="overlay-mf"></div>
+    <div class="intro-content display-table">
+        <div class="table-cell">
+            <div class="container">
+                <h2 class="intro-title mb-4">Resumé</h2>
+                <ol class="breadcrumb d-flex justify-content-center">
+                    <li class="breadcrumb-item">
+                        <a href="{{ url_for('index') }}">Home</a>
+                    </li>
+                    <li class="breadcrumb-item active">Resumé</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section id="resume" class="resume-mf pt-5 route">
+    <div class="align-middle">
+        <div class="embed-responsive embed-responsive-1by1">
+            <iframe class="embed-responsive-item" src="{{ resume_link }}"></iframe>
+        </div>
+    </div>
+</section>
+{% endblock %}

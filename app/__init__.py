@@ -77,4 +77,9 @@ def create_app(test_config=None):
 
         mail.send(msg)
 
+    @app.route('/resume')
+    def resume():
+        resume_link = "https://docs.google.com/document/d/e/2PACX-1vSFvWsauLPiP6T-I32weOqKp4cyR6NyraGskcxtd083IZOpKeoarbR5sqJsBDxwfb6JV-Lm-ih5dbz1/pub?embedded=true"
+        return render_template('resume.html', resume_link = resume_link)
+
     return app

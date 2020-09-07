@@ -11,13 +11,13 @@
     <label for="date_started">Date Started</label>
     <input type="date" name="date_started" id="date_started" value="{{ request.form['date_started'] }}" required>
     <label for="link">Link</label>
-    <input name="link" id="link" value="{{ request.form['link'] }}" required>
+    <input name="link" id="link" value="{{ request.form['link'] }}">
     <label for="category">Category</label>
     <input name="category" id="category" value="{{ request.form['category'] }}" required>
     <label for="languages">Languages</label>
     <input name="languages" id="languages" value="{{ request.form['languages'] }}" required>
     <label for="video">Video Link</label>
-    <input name="video" id="video" value="{{ request.form['video'] }}" required>
+    <input name="video" id="video" value="{{ request.form['video'] }}">
     <input type=file name=file>
     <input type="submit" value="Save">
   </form>
