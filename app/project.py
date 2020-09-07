@@ -131,5 +131,5 @@ def delete(id):
 
 @bp.route('/<int:id>', methods=('GET', 'POST'))
 def project_detail(id):
-    project = get_project(id)
+    project = get_project(id, check_author=False)
     return render_template('project/project-details.html', project=project)
