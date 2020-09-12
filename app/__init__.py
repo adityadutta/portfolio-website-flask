@@ -9,14 +9,14 @@ def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(
         SECRET_KEY = os.environ['SECRET_KEY'],
-        DATABASE=os.path.join(app.instance_path, 'app.sqlite'),
-        MAIL_SERVER = os.environ['MAIL_SERVER'],
-        MAIL_PORT = os.environ['MAIL_PORT'],
-        MAIL_USERNAME = os.environ['MAIL_USERNAME'],
-        MAIL_PASSWORD = os.environ['MAIL_PASSWORD'],
-        MAIL_USE_TLS = False,
-        MAIL_USE_SSL = True,
-        GA_TRACKING_ID = os.environ['GA_TRACKING_ID'],
+        DATABASE= os.path.join(app.instance_path, 'app.sqlite'),
+    #     MAIL_SERVER = os.environ['MAIL_SERVER'],
+    #     MAIL_PORT = os.environ['MAIL_PORT'],
+    #     MAIL_USERNAME = os.environ['MAIL_USERNAME'],
+    #     MAIL_PASSWORD = os.environ['MAIL_PASSWORD'],
+    #     MAIL_USE_TLS = False,
+    #     MAIL_USE_SSL = True,
+    #     GA_TRACKING_ID = os.environ['GA_TRACKING_ID'],
     )
 
     if test_config is None:
@@ -46,6 +46,9 @@ def create_app(test_config=None):
     from . import project
     app.register_blueprint(project.bp)
 
+    from . import blog
+    app.register_blueprint(blog.bp)
+
     # index landing page
     from .db import get_db
     from .contact import contact
@@ -67,7 +70,12 @@ def create_app(test_config=None):
             ' FROM project p JOIN user u ON p.author_id = u.id'
             ' ORDER BY date_started DESC LIMIT 6'
         ).fetchall()
-        return render_template('index.html', projects=projects)
+        posts = db.execute(
+            'SELECT p.id, title, created, author_id, username, summary, category, photo, time_to_read'
+            ' FROM post p JOIN user u ON p.author_id = u.id'
+            ' ORDER BY created DESC LIMIT 3'
+        ).fetchall()
+        return render_template('index.html', projects=projects, posts=posts)
     
     def send_message(message):
         msg = Message(message.get('subject'), sender = message.get('email'),

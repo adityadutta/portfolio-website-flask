@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+<!-- ======= Blog Section ======= -->
+{% block content %}
+<section id="blog" class="blog-mf sect-pt4 route">
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="title-box text-center">
+                    <h3 class="title-a">
+                        Blog
+                    </h3>
+                    <p class="subtitle-a">
+                        My thoughts and opinion on everything, sometimes I share knowledge.
+                    </p>
+                    <div class="line-mf"></div>
+                </div>
+            </div>
+        </div>
+
+        {% if g.user %}
+        <a class="action" href="{{ url_for('blog.create') }}">New</a>
+        {% endif %}
+        <div class="row">
+            {% for post in posts %}
+            <div class="col-md-4">
+                <div class="card card-blog">
+                    <div class="card-img">
+                        <a href="{{ url_for('blog.blog_detail', id=post['id']) }}">
+                            {% if post['photo']%}
+                            <img src="{{ url_for('static', filename='img/blog/') }}{{ post['photo'] }}" alt=""
+                                class="img-fluid">
+                            {% else %}
+                            <img src="{{ url_for('static', filename='img/work-1.jpg') }}" alt="" class="img-fluid">
+                            {% endif %}</a>
+                    </div>
+                    <div class="card-body">
+                        <div class="card-category-box">
+                            <div class="card-category">
+                                <h6 class="category">{{ post['category'] }}</h6>
+                            </div>
+                        </div>
+                        <h3 class="card-title"><a
+                                href="{{ url_for('blog.blog_detail', id=post['id']) }}">{{ post['title'] }}</a></h3>
+                        {% if g.user['id'] == post['author_id'] %}
+                        <a class="action" href="{{ url_for('blog.update', id=post['id']) }}">Edit</a>
+                        {% endif %}
+                        <p class="card-description">
+                            {{ post['summary']}}
+                        </p>
+                    </div>
+                    <div class="card-footer">
+                        <div class="post-author">
+                            <a href="#">
+                                <img src="{{ url_for('static', filename='img/profile.jpg') }}" alt=""
+                                    class="avatar rounded-circle">
+                                <span class="author">{{ post['username'] }}</span>
+                            </a>
+                        </div>
+                        <div class="post-date">
+                            <span class="ion-ios-clock-outline"></span> {{ post['time_to_read'] }} min
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+
+        </div>
+    </div>
+</section><!-- End Portfolio Section -->
+{% endblock %}

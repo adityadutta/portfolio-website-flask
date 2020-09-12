@@ -1,0 +1,22 @@
+{% extends 'admin_base.html' %}
+
+{% block header %}
+  <h1>{% block title %}New Post{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+  <form method="post" enctype=multipart/form-data>
+    <label for="title">Title</label>
+    <input name="title" id="title" value="{{ request.form['title'] }}" required>
+    <label for="summary">Summary</label>
+    <textarea name="summary" id="summary">{{ request.form['summary'] }}</textarea>
+    <label for="body">Body</label>
+    <textarea name="body" id="body">{{ request.form['body'] }}</textarea>
+    <label for="category">Category</label>
+    <input name="category" id="category" value="{{ request.form['category'] }}" required>
+    <label for="category">Time To Read</label>
+    <input name="time_to_read" id="time_to_read" value="{{ request.form['time_to_read'] }}" required>
+    <input type=file name=file>
+    <input type="submit" value="Save">
+  </form>
+{% endblock %}
