@@ -10,13 +10,13 @@ def create_app(test_config=None):
     app.config.from_mapping(
         SECRET_KEY = os.environ['SECRET_KEY'],
         DATABASE= os.path.join(app.instance_path, 'app.sqlite'),
-    #     MAIL_SERVER = os.environ['MAIL_SERVER'],
-    #     MAIL_PORT = os.environ['MAIL_PORT'],
-    #     MAIL_USERNAME = os.environ['MAIL_USERNAME'],
-    #     MAIL_PASSWORD = os.environ['MAIL_PASSWORD'],
-    #     MAIL_USE_TLS = False,
-    #     MAIL_USE_SSL = True,
-    #     GA_TRACKING_ID = os.environ['GA_TRACKING_ID'],
+        MAIL_SERVER = os.environ['MAIL_SERVER'],
+        MAIL_PORT = os.environ['MAIL_PORT'],
+        MAIL_USERNAME = os.environ['MAIL_USERNAME'],
+        MAIL_PASSWORD = os.environ['MAIL_PASSWORD'],
+        MAIL_USE_TLS = False,
+        MAIL_USE_SSL = True,
+        GA_TRACKING_ID = os.environ['GA_TRACKING_ID'],
     )
 
     if test_config is None:
