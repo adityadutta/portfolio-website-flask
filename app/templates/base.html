@@ -23,12 +23,14 @@
     <!-- Template Main CSS File -->
     <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
 
-    <!-- =======================================================
-  * Template Name: DevFolio - v2.3.0
-  * Template URL: https://bootstrapmade.com/devfolio-bootstrap-portfolio-html-template/
-  * Author: BootstrapMade.com
-  * License: https://bootstrapmade.com/license/
-  ======================================================== -->
+    <!-- Google Analytics -->
+    <script>
+        window.ga = window.ga || function () { (ga.q = ga.q || []).push(arguments) }; ga.l = +new Date;
+        ga('create', '{{ config.GA_TRACKING_ID }}', 'auto');
+        ga('send', 'pageview');
+    </script>
+    <script async src='https://www.google-analytics.com/analytics.js'></script>
+    <!-- End Google Analytics -->
     {% block header %}{% endblock %}
 </head>
 
@@ -62,8 +64,8 @@
                         <a class="nav-link js-scroll" href="{{ url_for('index') }}#contact">Contact</a>
                     </li>
                     <li class="nav-item">
-                            <a class="nav-link js-scroll" href="{{ url_for('resume') }}">Resumé</a>
-                        </li>
+                        <a class="nav-link js-scroll" href="{{ url_for('resume') }}">Resumé</a>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -113,15 +115,6 @@
 
     <!-- Template Main JS File -->
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
-
-    <!-- Google Analytics -->
-    <script>
-        window.ga = window.ga || function () { (ga.q = ga.q || []).push(arguments) }; ga.l = +new Date;
-        ga('create', '{{ config.GA_TRACKING_ID }}', 'auto');
-        ga('send', 'pageview');
-    </script>
-    <script async src='https://www.google-analytics.com/analytics.js'></script>
-    <!-- End Google Analytics -->
 
 </body>
 

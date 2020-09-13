@@ -52,5 +52,10 @@ def create_app(test_config=None):
     app.register_blueprint(routes.bp)
     app.add_url_rule('/', endpoint='index')
     app.add_url_rule('/resume', endpoint='resume')
+    app.add_url_rule('/sitemap.xml', endpoint='sitemap')
+
+    @app.route('/robots.txt/')
+    def robots():
+        return("User-agent: *\nDisallow: /index/\nDisallow: /login/")
     
     return app

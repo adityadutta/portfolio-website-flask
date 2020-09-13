@@ -1,7 +1,7 @@
 import os
 
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, url_for, current_app
+    Blueprint, flash, g, redirect, render_template, request, url_for, current_app, make_response
 )
 from werkzeug.exceptions import abort
 from werkzeug.utils import secure_filename
@@ -10,6 +10,7 @@ from hashlib import md5
 from app.auth import login_required
 from app.db import get_db, get_db_cursor
 from flask_mail import Mail, Message
+from _datetime import datetime, timedelta
 
 bp = Blueprint('routes', __name__,)
 
@@ -50,3 +51,27 @@ def send_message(message):
 def resume():
     resume_link = "https://docs.google.com/document/d/e/2PACX-1vSFvWsauLPiP6T-I32weOqKp4cyR6NyraGskcxtd083IZOpKeoarbR5sqJsBDxwfb6JV-Lm-ih5dbz1/pub?embedded=true"
     return render_template('resume.html', resume_link = resume_link)
+
+
+@bp.route('/sitemap.xml', methods=['GET'])
+def sitemap():
+    try:
+      """Generate sitemap.xml. Makes a list of urls and date modified."""
+      pages=[]
+      ten_days_ago=(datetime.now() - timedelta(days=7)).date().isoformat()
+      # static pages
+      for rule in current_app.url_map.iter_rules():
+          if "GET" in rule.methods and len(rule.arguments)==0:
+              pages.append(
+                           ["http://adityadutta.herokuapp.com"+str(rule.rule),ten_days_ago]
+                           )
+
+      sitemap_xml = render_template('sitemap_template.xml', pages=pages)
+      response= make_response(sitemap_xml)
+      response.headers["Content-Type"] = "application/xml"    
+    
+      return response
+    except Exception as e:
+        return(str(e))	
+
+
