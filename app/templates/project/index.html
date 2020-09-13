@@ -56,22 +56,6 @@
                     </div>
                 </div>
             </div>
-            <!-- <article class="post">
-      <header>
-        <div>
-          <h1>{{ project['title'] }}</h1>
-          <div class="about">by {{ project['username'] }} on {{ project['date_started'].strftime('%Y-%m-%d') }}</div>
-        </div>
-        {% if g.user['id'] == project['author_id'] %}
-          <a class="action" href="{{ url_for('project.update', id=project['id']) }}">Edit</a>
-        {% endif %}
-      </header>
-      <p class="body">{{ project['summary'] }}</p>
-      <p class="action"><a href="{{project['link'] }}" target="_blank">Go To {{project['title']}}</a></p>
-    </article> -->
-            <!-- {% if not loop.last %}
-            <hr>
-            {% endif %} -->
             {% endfor %}
 
         </div>

@@ -8,7 +8,7 @@ from werkzeug.utils import secure_filename
 from hashlib import md5
 
 from app.auth import login_required
-from app.db import get_db
+from app.db import get_db, get_db_cursor
 
 bp = Blueprint('blog', __name__, url_prefix='/blog')
 
@@ -17,12 +17,14 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
 @bp.route('/')
 def index():
-    db = get_db()
-    posts = db.execute(
+    cur = get_db_cursor()
+    cur.execute(
         'SELECT p.id, title, created, author_id, username, summary, category, photo, time_to_read'
-        ' FROM post p JOIN user u ON p.author_id = u.id'
+        ' FROM post p JOIN "user" u ON p.author_id = u.id'
         ' ORDER BY created DESC'
-    ).fetchall()
+    )
+    
+    posts= cur.fetchall()
     return render_template('blog/index.html', posts=posts)
 
 def allowed_file(filename):
@@ -65,7 +67,7 @@ def create():
             db = get_db()
             db.execute(
                 'INSERT INTO post (title, body,  summary, category, photo, time_to_read, author_id)'
-                ' VALUES (?, ?, ?, ?, ?, ?, ?)',
+                ' VALUES (%s, %s, %s, %s, %s, %s, %s)',
                 (title, body,  summary, category, photo, time_to_read, g.user['id'])
             )
             db.commit()
@@ -74,12 +76,15 @@ def create():
     return render_template('blog/create.html')
 
 def get_post(id, check_author=True):
-    post = get_db().execute(
+    cur = get_db_cursor()
+    cur.execute(
         'SELECT p.id, title, body, created, author_id, username, summary, category, photo, time_to_read'
-        ' FROM post p JOIN user u ON p.author_id = u.id'
-        ' WHERE p.id = ?',
+        ' FROM post p JOIN "user" u ON p.author_id = u.id'
+        ' WHERE p.id = %s',
         (id,)
-    ).fetchone()
+    )
+    
+    post = cur.fetchone()
 
     if post is None:
         abort(404, "Post id {0} doesn't exist.".format(id))
@@ -108,13 +113,13 @@ def update(id):
         if error is not None:
             flash(error)
         else:
-            db = get_db()
-            db.execute(
-                'UPDATE post SET title = ?, body = ?, summary = ?, category = ?, time_to_read = ?'
-                ' WHERE id = ?',
+            cur = get_db_cursor()
+            cur.execute(
+                'UPDATE post SET title = %s, body = %s, summary = %s, category = %s, time_to_read = %s'
+                ' WHERE id = %s',
                 (title, body, summary, category, time_to_read, id)
             )
-            db.commit()
+            get_db().commit()
             return redirect(url_for('blog.index'))
 
     return render_template('blog/update.html', post=post)
@@ -123,27 +128,32 @@ def update(id):
 @login_required
 def delete(id):
     get_post(id)
-    db = get_db()
-    db.execute('DELETE FROM post WHERE id = ?', (id,))
-    db.commit()
+    cur = get_db_cursor()
+    cur.execute('DELETE FROM post WHERE id = %s', (id,))
+    get_db().commit()
     return redirect(url_for('blog.index'))
 
 @bp.route('/<int:id>', methods=('GET', 'POST'))
 def blog_detail(id):
     post = get_post(id, check_author=False)
-    db = get_db()
-    comments = db.execute(
+    cur = get_db_cursor()
+    cur.execute(
         ' SELECT c.id, c.created, post_id, username, email, c.body'
         ' FROM comment c JOIN post p ON c.post_id = p.id'
-        ' ORDER BY c.created ASC'
-    ).fetchall()
+        ' WHERE post_id = %s ORDER BY c.created ASC',
+        (id,)
+    )
+    
+    comments = cur.fetchall()
 
-    recent_posts = db.execute(
+    cur.execute(
         ' SELECT p.id, title, author_id'
-        ' FROM post p JOIN user u ON p.author_id = u.id'
-        ' WHERE title != ? ORDER BY created DESC LIMIT 3',
+        ' FROM post p JOIN "user" u ON p.author_id = u.id'
+        ' WHERE title != %s ORDER BY created DESC LIMIT 3',
         (post['title'],)
-    ).fetchall()
+    )
+    
+    recent_posts = cur.fetchall()
 
     if request.method == 'POST':
         body = request.form['message']
@@ -158,12 +168,12 @@ def blog_detail(id):
         if error is not None:
             flash(error)
         else:
-            db.execute(
+            cur.execute(
                  'INSERT INTO comment (body, username, email, post_id)'
-                ' VALUES (?, ?, ?, ?)',
+                ' VALUES (%s, %s, %s, %s)',
                 (body, username, email, id)
             )
-            db.commit()
+            get_db().commit()
             return redirect(url_for('blog.blog_detail', id=id))
 
     return render_template('blog/post-details.html', post=post, comments=comments, recent_posts=recent_posts)
@@ -171,7 +181,7 @@ def blog_detail(id):
 @bp.route('/<int:post_id>/delete_comment/<int:id>', methods=('POST', 'GET'))
 @login_required
 def delete_comment(post_id, id):
-    db = get_db()
-    db.execute('DELETE FROM comment WHERE id = ?', (id,))
-    db.commit()
+    cur = get_db_cursor()
+    cur.execute('DELETE FROM comment WHERE id = %s', (id,))
+    get_db_cursor().commit()
     return redirect(url_for('blog.blog_detail', id=post_id))

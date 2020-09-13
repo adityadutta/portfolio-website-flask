@@ -1,15 +1,14 @@
 import os
 
 from flask import Flask, render_template, url_for, request, redirect
-from flask_mail import Mail, Message
-
+from flask_mail import Mail
 
 def create_app(test_config=None):
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(
         SECRET_KEY = os.environ['SECRET_KEY'],
-        DATABASE= os.path.join(app.instance_path, 'app.sqlite'),
+        DATABASE_URL= os.environ['DATABASE_URL'],
         MAIL_SERVER = os.environ['MAIL_SERVER'],
         MAIL_PORT = os.environ['MAIL_PORT'],
         MAIL_USERNAME = os.environ['MAIL_USERNAME'],
@@ -49,45 +48,9 @@ def create_app(test_config=None):
     from . import blog
     app.register_blueprint(blog.bp)
 
-    # index landing page
-    from .db import get_db
-    from .contact import contact
-    @app.route('/', methods=['POST', 'GET'])
-    def index():
-        message = {}
-        if request.method == 'POST':  
-            message['name'] = request.form['name']
-            message['email'] = request.form['email']
-            message['subject'] = request.form['subject']
-            message['message'] = request.form['message'] + "\n\n Sender: " + message['email']
-
-            send_message(message)
-            return redirect(url_for('index'))   
-
-        db = get_db() 
-        projects = db.execute(
-            'SELECT p.id, title, link, date_started, author_id, username, summary, photo, category'
-            ' FROM project p JOIN user u ON p.author_id = u.id'
-            ' ORDER BY date_started DESC LIMIT 6'
-        ).fetchall()
-        posts = db.execute(
-            'SELECT p.id, title, created, author_id, username, summary, category, photo, time_to_read'
-            ' FROM post p JOIN user u ON p.author_id = u.id'
-            ' ORDER BY created DESC LIMIT 3'
-        ).fetchall()
-        return render_template('index.html', projects=projects, posts=posts)
+    from . import routes
+    app.register_blueprint(routes.bp)
+    app.add_url_rule('/', endpoint='index')
+    app.add_url_rule('/resume', endpoint='resume')
     
-    def send_message(message):
-        msg = Message(message.get('subject'), sender = message.get('email'),
-                recipients = [app.config['MAIL_USERNAME']],
-                body= message.get('message')
-        )  
-
-        mail.send(msg)
-
-    @app.route('/resume')
-    def resume():
-        resume_link = "https://docs.google.com/document/d/e/2PACX-1vSFvWsauLPiP6T-I32weOqKp4cyR6NyraGskcxtd083IZOpKeoarbR5sqJsBDxwfb6JV-Lm-ih5dbz1/pub?embedded=true"
-        return render_template('resume.html', resume_link = resume_link)
-
     return app

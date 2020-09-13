@@ -8,7 +8,7 @@ from werkzeug.exceptions import abort
 from werkzeug.utils import secure_filename
 
 from app.auth import login_required
-from app.db import get_db
+from app.db import get_db, get_db_cursor
 
 
 bp = Blueprint('project', __name__, url_prefix='/project')
@@ -18,12 +18,14 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
 @bp.route('/')
 def index():
-    db = get_db()
-    projects = db.execute(
+    db = get_db_cursor()
+    db.execute(
         'SELECT p.id, title, link, date_started, author_id, username, summary, photo, category'
-        ' FROM project p JOIN user u ON p.author_id = u.id'
+        ' FROM project p JOIN "user" u ON p.author_id = u.id'
         ' ORDER BY date_started DESC'
-    ).fetchall()
+    )
+    
+    projects = db.fetchall()
     return render_template('project/index.html', projects=projects)
 
 def allowed_file(filename):
@@ -64,24 +66,27 @@ def create():
         if error is not None:
             flash(error)
         else:
-            db = get_db()
-            db.execute(
+            cur = get_db_cursor()
+            cur.execute(
                 'INSERT INTO project (title, summary, date_started, link, photo, category, languages, video, author_id)'
-                ' VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                ' VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)',
                 (title, summary, date_started, link, photo, category, languages, video, g.user['id'])
             )
-            db.commit()
+            get_db().commit()
             return redirect(url_for('project.index'))
 
     return render_template('project/create.html')
 
 def get_project(id, check_author=True):
-    project = get_db().execute(
+    cur = get_db_cursor()
+    cur.execute(
         'SELECT p.id, title, summary, date_started, link, photo, category, languages, video, author_id, username'
-        ' FROM project p JOIN user u ON p.author_id = u.id'
-        ' WHERE p.id = ?',
+        ' FROM project p JOIN "user" u ON p.author_id = u.id'
+        ' WHERE p.id = %s',
         (id,)
-    ).fetchone()
+    )
+    
+    project = cur.fetchone()
 
     if project is None:
         abort(404, "Project id {0} doesn't exist.".format(id))
@@ -109,13 +114,13 @@ def update(id):
         if error is not None:
             flash(error)
         else:
-            db = get_db()
-            db.execute(
-                'UPDATE project SET title = ?, summary = ?, date_started = ?, link = ?'
-                ' WHERE id = ?',
+            cur = get_db_cursor()
+            cur.execute(
+                'UPDATE project SET title = %s, summary = %s, date_started = %s, link = %s'
+                ' WHERE id = %s',
                 (title, summary, date_started, link, id)
             )
-            db.commit()
+            get_db().commit()
             return redirect(url_for('project.index'))
 
     return render_template('project/update.html', project=project)
@@ -124,9 +129,9 @@ def update(id):
 @login_required
 def delete(id):
     project = get_project(id)
-    db = get_db()
-    db.execute('DELETE FROM project WHERE id = ?', (id,))
-    db.commit()
+    cur = get_db_cursor()
+    cur.execute('DELETE FROM project WHERE id = %s', (id,))
+    get_db().commit()
     return redirect(url_for('project.index'))
 
 @bp.route('/<int:id>', methods=('GET', 'POST'))
