@@ -69,7 +69,7 @@ def create():
             cur = get_db_cursor()
             cur.execute(
                 'INSERT INTO project (title, summary, date_started, link, photo, category, languages, video, author_id)'
-                ' VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)',
+                ' VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)',
                 (title, summary, date_started, link, photo, category, languages, video, g.user['id'])
             )
             get_db().commit()
