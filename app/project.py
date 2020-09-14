@@ -77,13 +77,13 @@ def create():
 
     return render_template('project/create.html')
 
-def get_project(id, check_author=True):
+def get_project(title, check_author=True):
     cur = get_db_cursor()
     cur.execute(
         'SELECT p.id, title, summary, date_started, link, photo, category, languages, video, author_id, username'
         ' FROM project p JOIN "user" u ON p.author_id = u.id'
-        ' WHERE p.id = %s',
-        (id,)
+        ' WHERE p.title = %s',
+        (title,)
     )
     
     project = cur.fetchone()
@@ -96,10 +96,10 @@ def get_project(id, check_author=True):
 
     return project
 
-@bp.route('/<int:id>/update', methods=('GET', 'POST'))
+@bp.route('/<string:title>/update', methods=('GET', 'POST'))
 @login_required
-def update(id):
-    project = get_project(id)
+def update(title):
+    project = get_project(title)
 
     if request.method == 'POST':
         title = request.form['title']
@@ -134,7 +134,7 @@ def delete(id):
     get_db().commit()
     return redirect(url_for('project.index'))
 
-@bp.route('/<int:id>', methods=('GET', 'POST'))
-def project_detail(id):
-    project = get_project(id, check_author=False)
+@bp.route('/<string:title>', methods=('GET', 'POST'))
+def project_detail(title):
+    project = get_project(title, check_author=False)
     return render_template('project/project-details.html', project=project)

@@ -7,6 +7,8 @@ from werkzeug.exceptions import abort
 from werkzeug.utils import secure_filename
 from hashlib import md5
 
+from urllib.parse import quote
+
 from app.auth import login_required
 from app.db import get_db, get_db_cursor
 from flask_mail import Mail, Message
@@ -31,13 +33,14 @@ def index():
         ' ORDER BY date_started DESC LIMIT 6'
     )
     projects = cur.fetchall()
+
     cur.execute(
         'SELECT p.id, title, created, author_id, username, summary, category, photo, time_to_read'
         ' FROM post p JOIN "user" u ON p.author_id = u.id'
         ' ORDER BY created DESC LIMIT 3'
     )
-    
     posts = cur.fetchall()
+    
     return render_template('index.html', projects=projects, posts=posts)
 
 def send_message(message):
@@ -65,6 +68,27 @@ def sitemap():
               pages.append(
                            ["http://adityadutta.herokuapp.com"+str(rule.rule),ten_days_ago]
                            )
+        
+      cur = get_db_cursor()
+      cur.execute(
+          ' SELECT title'
+          ' FROM project'
+      )
+      projects = cur.fetchall()
+      for project in projects:
+            pages.append(
+                         ["http://adityadutta.herokuapp.com/project/"+quote(project['title']),ten_days_ago]
+                         )
+
+      cur.execute(
+          'SELECT title'
+          ' FROM post '
+      )
+      posts = cur.fetchall()
+      for post in posts:
+            pages.append(
+                         ["http://adityadutta.herokuapp.com/blog/"+quote(post['title']),ten_days_ago]
+                         )
 
       sitemap_xml = render_template('sitemap_template.xml', pages=pages)
       response= make_response(sitemap_xml)

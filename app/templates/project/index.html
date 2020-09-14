@@ -40,7 +40,7 @@
                             <div class="col-sm-8">
                                 <h2 class="w-title">{{ project['title'] }}</h2>
                                 {% if g.user['id'] == project['author_id'] %}
-                                <a class="action" href="{{ url_for('project.update', id=project['id']) }}">Edit</a>
+                                <a class="action" href="{{ url_for('project.update', title=project['title']) }}">Edit</a>
                                 {% endif %}
                                 <div class="w-more">
                                     <span class="w-ctegory">{{ project['category'] }}</span> / <span
@@ -49,7 +49,7 @@
                             </div>
                             <div class="col-sm-4">
                                 <div class="w-like">
-                                    <a href="{{ url_for('project.project_detail', id=project['id']) }}"> <span class="ion-ios-plus-outline"></span></a>
+                                    <a href="{{ url_for('project.project_detail', title=project['title']) }}"> <span class="ion-ios-plus-outline"></span></a>
                                 </div>
                             </div>
                         </div>

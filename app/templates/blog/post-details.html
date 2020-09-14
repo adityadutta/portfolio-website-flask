@@ -135,7 +135,7 @@
               <ul class="list-sidebar">
                 {% for rp in recent_posts %}
                 <li>
-                  <a href="{{ url_for('blog.blog_detail', id=rp['id']) }}">{{ rp['title'] }}</a>
+                  <a href="{{ url_for('blog.blog_detail', title=rp['title']) }}">{{ rp['title'] }}</a>
                 </li>
                 {% endfor %}
               </ul>
@@ -146,22 +146,7 @@
             <div class="sidebar-content">
               <ul>
                 <li>
-                  <a href="#">Web.</a>
-                </li>
-                <li>
-                  <a href="#">Design.</a>
-                </li>
-                <li>
-                  <a href="#">Travel.</a>
-                </li>
-                <li>
-                  <a href="#">Photoshop</a>
-                </li>
-                <li>
-                  <a href="#">Corel Draw</a>
-                </li>
-                <li>
-                  <a href="#">JavaScript</a>
+                  <a href="#">{{ post['category'] }}</a>
                 </li>
               </ul>
             </div>

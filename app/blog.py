@@ -3,6 +3,7 @@ import os
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, url_for
 )
+
 from werkzeug.exceptions import abort
 from werkzeug.utils import secure_filename
 from hashlib import md5
@@ -75,13 +76,15 @@ def create():
 
     return render_template('blog/create.html')
 
-def get_post(id, check_author=True):
+def get_post(title, check_author=True):
+    # t = urllib.parse.unquote(title)
+
     cur = get_db_cursor()
     cur.execute(
         'SELECT p.id, title, body, created, author_id, username, summary, category, photo, time_to_read'
         ' FROM post p JOIN "user" u ON p.author_id = u.id'
-        ' WHERE p.id = %s',
-        (id,)
+        ' WHERE p.title = %s',
+        (title,)
     )
     
     post = cur.fetchone()
@@ -94,10 +97,10 @@ def get_post(id, check_author=True):
 
     return post
 
-@bp.route('/<int:id>/update', methods=('GET', 'POST'))
+@bp.route('/<string:title>/update', methods=('GET', 'POST'))
 @login_required
-def update(id):
-    post = get_post(id)
+def update(title):
+    post = get_post(title)
 
     if request.method == 'POST':
         title = request.form['title']
@@ -133,15 +136,15 @@ def delete(id):
     get_db().commit()
     return redirect(url_for('blog.index'))
 
-@bp.route('/<int:id>', methods=('GET', 'POST'))
-def blog_detail(id):
-    post = get_post(id, check_author=False)
+@bp.route('/<string:title>', methods=('GET', 'POST'))
+def blog_detail(title):
+    post = get_post(title, check_author=False)
     cur = get_db_cursor()
     cur.execute(
         ' SELECT c.id, c.created, post_id, username, email, c.body'
         ' FROM comment c JOIN post p ON c.post_id = p.id'
         ' WHERE post_id = %s ORDER BY c.created ASC',
-        (id,)
+        (post['id'],)
     )
     
     comments = cur.fetchall()
@@ -174,7 +177,7 @@ def blog_detail(id):
                 (body, username, email, id)
             )
             get_db().commit()
-            return redirect(url_for('blog.blog_detail', id=id))
+            return redirect(url_for('blog.blog_detail', title=title))
 
     return render_template('blog/post-details.html', post=post, comments=comments, recent_posts=recent_posts)
 
