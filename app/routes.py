@@ -13,6 +13,7 @@ from app.auth import login_required
 from app.db import get_db, get_db_cursor
 from flask_mail import Mail, Message
 from _datetime import datetime, timedelta
+from app import mail
 
 bp = Blueprint('routes', __name__,)
 
@@ -25,7 +26,8 @@ def index():
         message['subject'] = request.form['subject']
         message['message'] = request.form['message'] + "\n\n Sender: " + message['email']
         send_message(message)
-        return redirect(url_for('index'))   
+        return redirect(url_for('index'))  
+
     cur = get_db_cursor()
     cur.execute(
         'SELECT p.id, title, link, date_started, author_id, username, summary, photo, category'
@@ -48,7 +50,7 @@ def send_message(message):
             recipients = [current_app.config['MAIL_USERNAME']],
             body= message.get('message')
     )  
-    current_app.mail.send(msg)
+    mail.send(msg)
 
 @bp.route('/resume')
 def resume():

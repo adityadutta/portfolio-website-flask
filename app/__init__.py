@@ -3,6 +3,8 @@ import os
 from flask import Flask, render_template, url_for, request, redirect
 from flask_mail import Mail
 
+mail = Mail()
+
 def create_app(test_config=None):
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
@@ -31,7 +33,6 @@ def create_app(test_config=None):
     except OSError:
         pass
 
-    mail = Mail()
     mail.init_app(app)
 
     #database
