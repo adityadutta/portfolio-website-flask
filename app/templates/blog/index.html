@@ -26,7 +26,7 @@
             <div class="col-md-4">
                 <div class="card card-blog">
                     <div class="card-img">
-                        <a href="{{ url_for('blog.blog_detail', id=post['id']) }}">
+                        <a href="{{ url_for('blog.blog_detail', title=post['title']) }}">
                             {% if post['photo']%}
                             <img src="{{ url_for('static', filename='img/blog/') }}{{ post['photo'] }}" alt=""
                                 class="img-fluid">
