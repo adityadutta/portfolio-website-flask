@@ -910,6 +910,12 @@ a:hover {
   background-color: #ddd !important;
 }
 
+.portfolio-details .portfolio-details-carousel .item-video{
+   height: 720px; 
+   width: auto; 
+   margin: 0 auto; 
+}
+
 .portfolio-details .portfolio-details-carousel .owl-dot.active {
   background-color: #0078ff !important;
 }
