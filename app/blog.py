@@ -97,6 +97,27 @@ def get_post(title, check_author=True):
 
     return post
 
+def get_post_from_id(id, check_author=True):
+    # t = urllib.parse.unquote(title)
+
+    cur = get_db_cursor()
+    cur.execute(
+        'SELECT p.id, title, body, created, author_id, username, summary, category, photo, time_to_read'
+        ' FROM post p JOIN "user" u ON p.author_id = u.id'
+        ' WHERE p.id = %s',
+        (id,)
+    )
+    
+    post = cur.fetchone()
+
+    if post is None:
+        abort(404, "Post id {0} doesn't exist.".format(id))
+
+    if check_author and post['author_id'] != g.user['id']:
+        abort(403)
+
+    return post
+
 @bp.route('/<string:title>/update', methods=('GET', 'POST'))
 @login_required
 def update(title):
@@ -120,7 +141,7 @@ def update(title):
             cur.execute(
                 'UPDATE post SET title = %s, body = %s, summary = %s, category = %s, time_to_read = %s'
                 ' WHERE id = %s',
-                (title, body, summary, category, time_to_read, id)
+                (title, body, summary, category, time_to_read, post['id'])
             )
             get_db().commit()
             return redirect(url_for('blog.index'))
@@ -171,11 +192,9 @@ def blog_detail(title):
         if error is not None:
             flash(error)
         else:
-            cur.execute(
-                 'INSERT INTO comment (body, username, email, post_id)'
-                ' VALUES (%s, %s, %s, %s)',
-                (body, username, email, id)
-            )
+            comm = 'INSERT INTO comment (body, username, email, post_id) VALUES (\'{}\', \'{}\', \'{}\', {})'.format(body, username, email, post['id'])
+            print(comm)
+            cur.execute(comm)
             get_db().commit()
             return redirect(url_for('blog.blog_detail', title=title))
 
@@ -184,7 +203,8 @@ def blog_detail(title):
 @bp.route('/<int:post_id>/delete_comment/<int:id>', methods=('POST', 'GET'))
 @login_required
 def delete_comment(post_id, id):
+    post = get_post_from_id(post_id)
     cur = get_db_cursor()
     cur.execute('DELETE FROM comment WHERE id = %s', (id,))
-    get_db_cursor().commit()
-    return redirect(url_for('blog.blog_detail', id=post_id))
+    get_db().commit()
+    return redirect(url_for('blog.blog_detail', title=post['title']))

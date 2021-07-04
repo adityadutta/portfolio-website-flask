@@ -118,7 +118,7 @@ def update(title):
             cur.execute(
                 'UPDATE project SET title = %s, summary = %s, date_started = %s, link = %s'
                 ' WHERE id = %s',
-                (title, summary, date_started, link, id)
+                (title, summary, date_started, link, project['id'])
             )
             get_db().commit()
             return redirect(url_for('project.index'))

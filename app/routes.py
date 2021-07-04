@@ -54,7 +54,7 @@ def send_message(message):
 
 @bp.route('/resume')
 def resume():
-    resume_link = "https://docs.google.com/document/d/e/2PACX-1vSFvWsauLPiP6T-I32weOqKp4cyR6NyraGskcxtd083IZOpKeoarbR5sqJsBDxwfb6JV-Lm-ih5dbz1/pub?embedded=true"
+    resume_link = "https://docs.google.com/document/d/e/2PACX-1vSqJ_AhXr-hs-zWiob_rAr-QD_92E1qc0eJdWV4KK1kaz72xRFCiLLZ4zJEq_zTPAmtRBoWF8OEbPYK/pub?embedded=true"
     return render_template('resume.html', resume_link = resume_link)
 
 
