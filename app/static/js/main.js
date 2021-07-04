@@ -143,6 +143,9 @@
     autoplay: true,
     dots: true,
     loop: true,
+    video:true,
+    lazyLoad:false,
+    center:true,
     items: 1
   });
 
